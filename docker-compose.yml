@@ -1,0 +1,40 @@
+version: '3.2'
+services:
+  kafka-connect:
+    image: bitnami/kafka:latest
+    restart: always
+    volumes:
+      - "./config/connect-standalone.properties.template:/connect/config/connect-standalone.properties.template"
+      - "./plugins:/connect/plugins"
+    env_file: .env
+    ports:
+      - 8083:8083
+    command:
+      - bash
+      - -c
+      - |
+        cat /connect/config/connect-standalone.properties.template |\
+        sed s/\$$BOOTSTRAP_SERVERS/$$BOOTSTRAP_SERVERS/g |\
+        sed s/\$$USERNAME/$$USERNAME/g |\
+        sed s/\$$PASSWORD/$$PASSWORD/g > /tmp/connect-standalone.properties; cat /tmp/connect-standalone.properties; \
+        connect-standalone.sh /tmp/connect-standalone.properties
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: true
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: sink
+    ports:
+      - 3306:3306
+
+  gui:
+    image: landoop/kafka-connect-ui
+    restart: always
+    ports:
+      - 8000:8000
+    environment:
+      CONNECT_URL: http://kafka-connect:8083
+
