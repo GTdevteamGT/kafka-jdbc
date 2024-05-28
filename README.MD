@@ -1,6 +1,11 @@
 # JDBC Sink connector
 
 This is a project of sample standalone Apache Kafka Connect JDBC connector container.
+It supports several database engines out of the box:
+- MSSQL
+- MySQL
+- PostgreSQL
+- Oracle
 
 ## Quickstart
 
