@@ -2,6 +2,7 @@ version: '3.2'
 services:
   kafka-connect:
     image: bitnami/kafka:latest
+    container_name: kafka-connect
     restart: always
     volumes:
       - "./config/connect-standalone.properties.template:/connect/config/connect-standalone.properties.template"
@@ -18,9 +19,12 @@ services:
         sed s/\$$USERNAME/$$USERNAME/g |\
         sed s/\$$PASSWORD/$$PASSWORD/g > /tmp/connect-standalone.properties; cat /tmp/connect-standalone.properties; \
         connect-standalone.sh /tmp/connect-standalone.properties
+    networks:
+      - kafka
 
   db:
     image: mysql
+    container_name: db
     restart: always
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: true
@@ -29,13 +33,19 @@ services:
       MYSQL_DATABASE: sink
     ports:
       - 3306:3306
+    networks:
+      - kafka
 
   gui:
     image: landoop/kafka-connect-ui
+    container_name: gui
     restart: always
-    network_mode: bridge
     ports:
       - 8000:8000
     environment:
       CONNECT_URL: http://kafka-connect:8083
+    networks:
+      - kafka
 
+networks:
+  kafka:
