@@ -33,6 +33,7 @@ services:
   gui:
     image: landoop/kafka-connect-ui
     restart: always
+    network_mode: bridge
     ports:
       - 8000:8000
     environment:
